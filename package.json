@@ -1,6 +1,6 @@
 {
   "name": "chatluna-plugin-eat-what",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "吃什么、喝什么图片随机推荐，支持自定义关键词、回复模板和一小时去重",
   "type": "module",
   "license": "MIT",
