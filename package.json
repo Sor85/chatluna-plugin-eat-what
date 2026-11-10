@@ -1,0 +1,45 @@
+{
+  "name": "chatluna-plugin-eat-what",
+  "version": "0.1.0",
+  "description": "吃什么、喝什么图片随机推荐，支持自定义关键词、回复模板和一小时去重",
+  "type": "module",
+  "license": "MIT",
+  "keywords": ["chatluna-plugin", "eat-what", "food", "drink"],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": { "types": "./lib/index.d.ts", "default": "./lib/index.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["lib", "assets", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md"],
+  "engines": { "node": ">=24.0.0" },
+  "scripts": {
+    "build": "yakumo build eat-what",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@chatluna/schema": ">=2.0.0-alpha.0",
+    "@satorijs/core": "~4.6.1",
+    "cordis": "^4.0.0-rc.12"
+  },
+  "devDependencies": {
+    "@chatluna/permission": "workspace:*",
+    "@chatluna/schema": "workspace:*",
+    "@cordisjs/plugin-database": "4.2.0",
+    "@cordisjs/plugin-database-sqlite": "5.2.0",
+    "@satorijs/core": "~4.6.1",
+    "@types/node": "24.13.3",
+    "cordis": "4.0.0-rc.12",
+    "koishi": "npm:@koishijs/core@4.18.11",
+    "typescript": "7.0.2",
+    "vitest": "^3.2.4"
+  },
+  "cordis": {
+    "description": {
+      "zh": "食物与饮料图片推荐、自定义关键词和模板、一小时去重",
+      "en": "Food and drink image recommendations with custom triggers, templates and hourly deduplication"
+    },
+    "service": { "required": ["koishi"] }
+  }
+}
