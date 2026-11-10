@@ -5,11 +5,11 @@
 // 最后给当前提交打 v<版本> tag 并推送。
 //
 // 用法：
-//   node scripts/publish.mjs <ChatLuna-V2目录>               发布 package.json 里的版本
-//   node scripts/publish.mjs <ChatLuna-V2目录> --dry-run     走完验证与打包，只执行 npm publish --dry-run，不打 tag
-//   node scripts/publish.mjs <ChatLuna-V2目录> --otp=123456  账号开了两步验证时带上一次性验证码
+//   node scripts/publish.mjs            发布 package.json 里的版本
+//   node scripts/publish.mjs --dry-run  走完验证与打包，只执行 npm publish --dry-run，不打 tag
+// 宿主目录默认 ../../chatluna-v2-mirror，可用 CHATLUNA_V2_ROOT 覆盖。
+// npm 登录与发布授权都走浏览器验证，需在交互式终端中运行。
 // 不经 yarn 运行：本目录没有 yarn.lock，Yarn 4 会把它当成未安装的项目，在启动脚本前就报错。
-// 没有交互式终端时，npm 不会等待浏览器授权，直接以 EOTP 退出，所以验证码用 --otp 传入。
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -17,13 +17,9 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const source = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const options = process.argv.slice(2)
-const positional = options.filter((arg) => !arg.startsWith('--'))
-if (positional.length !== 1) throw new Error('用法：node scripts/publish.mjs <ChatLuna-V2目录> [--dry-run] [--otp=<验证码>]')
-const mirror = realpathSync(resolve(positional[0].replaceAll('\\', '/')))
+const mirror = realpathSync(resolve(source, (process.env.CHATLUNA_V2_ROOT ?? '../../chatluna-v2-mirror').replaceAll('\\', '/')))
 const target = join(mirror, 'external/eat-what')
-const dryRun = options.includes('--dry-run')
-const otp = options.find((arg) => arg.startsWith('--otp='))
+const dryRun = process.argv.includes('--dry-run')
 
 const run = (command, args, cwd = source) => execFileSync(command, args, { cwd, stdio: 'inherit' })
 const read = (command, args, cwd = source) => execFileSync(command, args, { cwd, encoding: 'utf8' }).trim()
@@ -51,7 +47,7 @@ if (!dryRun) {
     try {
         read('npm', ['whoami'])
     } catch {
-        fail('npm 未登录，先运行 npm login')
+        run('npm', ['login', '--auth-type=web'])
     }
 }
 
@@ -77,11 +73,10 @@ run('yarn', ['pack', '--out', tarball], target)
 run('tar', ['-xzf', tarball, '-C', workdir])
 const packageDir = join(workdir, 'package')
 
-const args = ['publish', packageDir, '--access', 'public']
+const args = ['publish', packageDir, '--access', 'public', '--auth-type=web']
 const prerelease = version.match(/-(alpha|beta|rc|next)/)?.[1]
 if (prerelease) args.push('--tag', prerelease)
 if (dryRun) args.push('--dry-run')
-if (otp) args.push(otp)
 run('npm', args)
 
 if (dryRun) {

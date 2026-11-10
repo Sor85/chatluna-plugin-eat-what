@@ -15,8 +15,8 @@ ChatLuna V2 的「吃什么 / 喝什么」插件，使用 Cordis 4 服务和 V2 
 
 ## 发布
 
-- 在本机执行 `node scripts/publish.mjs <ChatLuna-V2目录>`；`--dry-run` 只演练，账号开了两步验证时加 `--otp=<验证码>`。发版前只需修改 `package.json` 的 `version` 并提交推送。
-- 脚本要求工作区干净、当前分支已推送到 origin、npm 已登录、`v<版本>` tag 不存在。流程：同步 → 清空副本 `lib` 与 `tsconfig.tsbuildinfo` → 类型检查、测试、构建 → `yarn pack` → 解压后从目录 `npm publish` → 打 tag 并推送。各步原因见脚本注释。
+- 在本机交互式终端执行 `node scripts/publish.mjs`，`--dry-run` 只演练。宿主目录默认 `../../chatluna-v2-mirror`，可用 `CHATLUNA_V2_ROOT` 覆盖。npm 登录与发布授权都走浏览器验证（`--auth-type=web`），不使用一次性验证码。发版前只需修改 `package.json` 的 `version` 并提交推送。
+- 脚本要求工作区干净、当前分支已推送到 origin、`v<版本>` tag 不存在；npm 未登录时自动发起浏览器登录。流程：同步 → 清空副本 `lib` 与 `tsconfig.tsbuildinfo` → 类型检查、测试、构建 → `yarn pack` → 解压后从目录 `npm publish` → 打 tag 并推送。各步原因见脚本注释。
 - 不在 CI 发布：`@chatluna/*` 只能从私有宿主 workspace 解析。npm 可能先出现 `0.0.0-stage` 占位版本，确认 `latest` 指向新版本前不判定为发布失败。
 
 ## 目录说明
