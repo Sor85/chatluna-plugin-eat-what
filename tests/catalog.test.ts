@@ -52,9 +52,20 @@ describe('配置、图库与模板', () => {
     })
     it('模板仅替换两个占位符，保留换行与未知占位', () => {
         const image = h.image('data:image/png;base64,AA==')
-        const result = renderTemplate('{{ image }}\n建议{{dishes}} {{unknown}}', '茶', image)
+        const result = renderTemplate('{{ image }}\n建议{{dishes}}\n{{unknown}}', '茶', image)
         expect(result[0]).toBe(image)
-        expect(result.map(String).join('')).toContain('\n建议茶 {{unknown}}')
+        expect(result.map(String).join('')).toContain('建议茶\n{{unknown}}')
+    })
+    it('去掉紧贴图片的一个换行，避免图片与文字之间出现空行', () => {
+        const image = h.image('data:image/png;base64,AA==')
+        const after = renderTemplate('{{image}}\n建议{{dishes}}', '茶', image)
+        expect(after[0]).toBe(image)
+        expect(after.slice(1).map(String).join('')).toBe('建议茶')
+        const before = renderTemplate('建议{{dishes}}\r\n{{image}}', '茶', image)
+        expect(before.at(-1)).toBe(image)
+        expect(before.slice(0, -1).map(String).join('')).toBe('建议茶')
+        const blank = renderTemplate('{{image}}\n\n建议', '茶', image)
+        expect(blank.slice(1).map(String).join('')).toBe('\n建议')
     })
     it('模板和菜名中的消息标记不得成为可执行元素', () => {
         const result = renderTemplate('<at id="all"/> {{dishes}}', '<img src="file:///secret"/>', h.image('unused'))
